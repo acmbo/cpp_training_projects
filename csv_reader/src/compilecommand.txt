@@ -1,0 +1,1 @@
+g++ read_csv.cpp -Wall -Wextra -std=c++2a

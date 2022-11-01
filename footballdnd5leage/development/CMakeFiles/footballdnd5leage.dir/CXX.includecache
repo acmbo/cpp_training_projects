@@ -1,0 +1,20 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/acmbo/Programming/cpp-proj/footballdnd5leage/development/src/main.cpp
+iostream
+-
+string
+-
+stdlib.h
+-
+vector
+-
+ctime
+-
+

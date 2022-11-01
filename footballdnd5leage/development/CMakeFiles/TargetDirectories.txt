@@ -1,0 +1,3 @@
+/home/acmbo/Programming/cpp-proj/footballdnd5leage/development/CMakeFiles/rebuild_cache.dir
+/home/acmbo/Programming/cpp-proj/footballdnd5leage/development/CMakeFiles/edit_cache.dir
+/home/acmbo/Programming/cpp-proj/footballdnd5leage/development/CMakeFiles/footballdnd5leage.dir
