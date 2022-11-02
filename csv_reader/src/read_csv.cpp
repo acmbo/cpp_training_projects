@@ -87,8 +87,7 @@ DataFrame read_csv_files(string &fpath, char delim = ',')
     return df;
 }
 
-int example() 
-{
+int main()  {
     string fpath = "employees.csv";
     DataFrame data;
     

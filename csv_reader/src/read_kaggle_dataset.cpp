@@ -5,17 +5,29 @@
 #include <filesystem>
 #include <typeinfo> // for debugging
 
+#include "dataframe.h"
+
 // Nutzung von namespace best pratice?
 using namespace std;
 
 
-class DataFrame {
-    public:
-        vector<string> columns;
-        vector<vector<string>> data;
-        int columnlen;
-        int size = 0;
+
+
+struct Row {
+    string name;
+    unsigned int id; // Unsingend ist effizienter als normales int?
+    double time_minutes;
+    long contributor_id;
+    string submit_date;
+    string tags;
+    string nutrition;
+    unsigned int n_steps;
+    string steps;
+    string description;
+    string ingredients;
+    unsigned int n_ingredients;
 };
+
 
 // Create dataframe
 // Pass by reference, why not pass by pointer?
@@ -81,6 +93,11 @@ DataFrame read_csv_files(string &fpath, char delim = ',')
     return df;
 }
 
+
+
+// Data in cell of row is stored in a string of a list of values
+// Structure : ['calories','total fat','sugar','sodium','protein','saturated fat','carbohydrates']
+// Example in Row : [73.1, 1.0, 15.0, 0.0, 5.0, 3.0, 4.0]
 vector<double> getNutritionValues(string csvinput) {
     string line;
     stringstream sstream(csvinput);
@@ -89,33 +106,22 @@ vector<double> getNutritionValues(string csvinput) {
 
     while(getline(sstream, line, delim))
     {
-        cout << line << endl;
+        nutritionvals.push_back(stod(line));
     }
     return nutritionvals;
 }
 
 
-struct Row {
-    string name;
-    unsigned int id; // Unsingend ist effizienter als normales int?
-    double time_minutes;
-    long contributor_id;
-    string submit_date;
-    string tags;
-    string nutrition;
-    unsigned int n_steps;
-    string steps;
-    string description;
-    string ingredients;
-    unsigned int n_ingredients;
-};
+
 
 
 int main() 
 {
-    string fpath = "RAW_recipes_delimitier.csv";
+    string fpath = "Recipes_RAW_Test.csv";
 
     DataFrame df = read_csv_files(fpath, ';');
+
+    df.helloWorld();
 
     cout << "Dataframe Size: ";
     cout << df.size << endl;
@@ -153,3 +159,12 @@ int main()
     return 0;
 }
 
+
+/* TO DOO Rmove [ from string in   getNutritionValues( [73.1
+ 1.0
+ 15.0
+ 0.0
+ 5.0
+ 3.0
+ 4.0]
+*/
