@@ -83,7 +83,6 @@ DataFrame read_csv_files(string &fpath, char delim = ',')
     {
         cout << "File does no exists";
     }
-
     return df;
 }
 
