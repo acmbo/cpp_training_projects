@@ -1,2 +1,3 @@
 g++ read_csv.cpp -Wall -Wextra -std=c++2a
 g++ read_kaggle_dataset.cpp dataframe.cpp -Wall -Wextra -std=c++17
+g++ read_kaggle_dataset.cpp fooddata/dataframe.cpp fooddata/recipe.cpp fooddata/datahelper.cpp -Wall -Wextra -std=c++17
