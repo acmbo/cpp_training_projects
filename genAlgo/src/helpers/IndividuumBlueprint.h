@@ -42,8 +42,8 @@ class IndividuumBlueprint {
         int calculateFitness();
         int getChromosomeSize();
         int getFitness();
-        int getChromosome(int index);
-
+        int getChromosomeAt(int index);
+        int (&getChromosome())[CHROMOSOMESIZE];
 
     protected:
         int fitness;

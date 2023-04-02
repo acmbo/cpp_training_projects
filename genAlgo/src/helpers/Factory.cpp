@@ -104,6 +104,7 @@ private:
 #include "../helpers/Factory.h"
 
 
+
 template<typename INDIVIDUUMTYP>
 Factory<INDIVIDUUMTYP>::Factory(int chromosomeSize, int populationSize, std::function<int()> inputchromgenfunc) :   // alternative to std::function u can use function pointer:  int (*inputchromgenfunc)(int, int)) :
             chromosomeSize(chromosomeSize),
