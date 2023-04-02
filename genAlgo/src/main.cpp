@@ -4,6 +4,11 @@
 #include "helpers/IndividuumBlueprint.h"
 #include "helpers/miscFunc.h"
 
+
+/*
+First working implementation of individdumm
+
+
 //Create Individdum class from Blueprint. Ensure calucalteFitness() has implementation. 
 template<int CHROMOSOMESIZE>
 class Individuum: public IndividuumBlueprint<CHROMOSOMESIZE> {
@@ -49,6 +54,85 @@ class Individuum: public IndividuumBlueprint<CHROMOSOMESIZE> {
             return this->chromosome;
 
         // As alternative use std:array :
+        //
+        //    class MyClass {
+        //    public:
+        //        std::array<int, 5>& getArray() {
+        //            return myArray;
+        //        }
+        //
+        //    private:
+        //        std::array<int, 5> myArray{1, 2, 3, 4, 5};
+        //    };
+        //
+        //    int main() {
+        //        MyClass obj;
+        //        std::array<int, 5>& arr = obj.getArray();
+        //
+        //        for (auto i : arr) {
+        //            std::cout << i << " ";
+        //        }
+        //        std::cout << std::endl;
+        //
+        //        return 0;
+        //    }
+        
+    }
+
+};
+
+*/
+
+
+
+
+//Create Individdum class from Blueprint. Ensure calucalteFitness() has implementation. 
+class Individuum: public IndividuumBlueprint {
+
+    public:
+        // Constructor sets each chromosome. loop through array of chromosome and call function wich is passed
+        Individuum(const std::function<int()> &chromosomeGenerator, int chromosomeSizeInput):
+            IndividuumBlueprint(chromosomeGenerator,chromosomeSizeInput) 
+            {
+                setChromosomeGeneratorFunction(chromosomeGenerator);
+                this->chromosomeSize = chromosomeSizeInput;
+                this->chromosome = new int[this->chromosomeSize];
+
+                for(int i = 0; i<this->chromosomeSize; i++) {
+                    this->chromosome[i] = this->chromosomeGeneratorFunction();  // This is only here possible. Cant create setter function outside of here
+            }
+        }
+
+        void setChromosomeGeneratorFunction(const std::function<int()> chromosomeGenerator) {
+            this->chromosomeGeneratorFunction = chromosomeGenerator;
+        }
+
+        int calculateFitness() {
+            int fitness=0;
+            for(int i=0; i<this->chromosomeSize;i++) {
+                fitness += this->chromosome[i];
+            }
+            this->fitness = fitness;
+            return fitness;
+        }
+
+        int getChromosomeSize() const {
+            return this->chromosomeSize;
+        }
+
+        int getFitness() const {
+            return this->fitness;
+        }
+
+        int getChromosomeAt(int index) {
+            return this->chromosome[index];
+        }
+
+        // returns a pointer to the array
+        int* getChromosome() {
+            return this->chromosome;
+
+        // As alternative use std:array :
         /*
             class MyClass {
             public:
@@ -72,7 +156,56 @@ class Individuum: public IndividuumBlueprint<CHROMOSOMESIZE> {
                 return 0;
             }
         */
-    }
+        }
+
+        // Destructor
+        /*
+        IMPORTANT!
+        When i use the destructor i get 
+        free(): double free detected in tcache 2
+        Aborted (core dumped)
+        */
+        ~Individuum() {
+        // Deallocate memory for the array
+            delete[] this->chromosome;
+        }
+
+        /*
+        Q: when i use this code i get a free(): double free detected in tchach2. If i remove the deconstructor of Individuum the code is working. Can i fix this?
+
+
+        The issue with the double free error in the Individuum destructor might be caused by copying or moving the object. 
+        When the destructor is called on an object that has already been moved or copied, it will attempt to delete the
+         same memory twice, leading to the double free error.
+
+        To fix this, you can provide a copy constructor and a copy assignment operator that handle copying the object
+        correctly by performing a deep copy of the chromosome array. Here's an example implementation:
+        
+
+        Note that I've also added the chromosomeSize member variable to Individuum, which was previously being accessed 
+        through the IndividuumBlueprint base class. This is necessary to correctly handle copying the object.
+
+        */
+
+
+        // Copy constructor
+        Individuum(const Individuum& other) : IndividuumBlueprint(other) {
+            chromosomeSize = other.chromosomeSize;
+            this->chromosome = new int[chromosomeSize];       // Could here be problem with memory leak?
+            std::copy(other.chromosome, other.chromosome + chromosomeSize, this->chromosome);
+        }
+
+        // Copy assignment operator
+        Individuum& operator=(const Individuum& other) {
+            if (this != &other) {
+                IndividuumBlueprint::operator=(other);
+                chromosomeSize = other.chromosomeSize;
+                delete[] this->chromosome;                      // Here will memory will be freed!
+                this->chromosome = new int[chromosomeSize];
+                std::copy(other.chromosome, other.chromosome + chromosomeSize, this->chromosome);
+            }
+            return *this;
+        }
 
 };
 
@@ -87,7 +220,7 @@ Factory<INDIVIDUUMTYP>::Factory(int chromosomeSize, int populationSize, std::fun
 template<typename INDIVIDUUMTYP>
 INDIVIDUUMTYP Factory<INDIVIDUUMTYP>::CreateIndividual() {
     std::function<int()> chromosomeGenerator = this->chromosomeGeneratorFunction;
-    return INDIVIDUUMTYP(chromosomeGenerator);
+    return INDIVIDUUMTYP(chromosomeGenerator, chromosomeSize);
 }
 
 template<typename INDIVIDUUMTYP>
@@ -159,7 +292,7 @@ void Factory<INDIVIDUUMTYP>::setPopulationSize(int populationSize) {
 int main() {
     setRandomSeed();
     
-    Individuum<6> test2(genFunc);
+    Individuum test2(genFunc, 6);
     test2.calculateFitness();
     
     for(int i=0; i < test2.getChromosomeSize(); i++) {
@@ -172,20 +305,25 @@ int main() {
     std::cout << "Chromsize: ";
     std::cout << test2.getChromosomeSize() << std::endl;
     
+
+    // For Factory:
+    int CHROMSIZE = 10;
+
+
     // First implementation:
-    Factory<Individuum<10>> factory(10, 50, genFunc);
+    Factory<Individuum> factory(CHROMSIZE, 50, genFunc);
 
     // Second implementation:  
     //IndFactory<Individuum<10>> indfactory(10, 50, genFunc);
 
 
     // Print out all Indiviuals
-    std::vector<Individuum<10>> population = factory.CreatePopulation();
+    std::vector<Individuum> population = factory.CreatePopulation();
     for (auto& ind : population) {
-        int (&arr)[10] = ind.getChromosome();
+        int* arr = ind.getChromosome();
     
         std::cout << "Individuum from Factory: ";
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < ind.getChromosomeSize(); i++) {
             std::cout << arr[i] << " ";
         }
 
